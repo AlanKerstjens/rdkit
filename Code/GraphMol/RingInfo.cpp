@@ -13,7 +13,7 @@
 
 namespace RDKit {
 RingInfo::INT_VECT RingInfo::atomRingSizes(unsigned int idx) const {
-  PRECONDITION(df_init, "RingInfo not initialized");
+  PRECONDITION(df_fullyPopulated, "RingInfo not fully populated");
 
   if (idx < d_atomMembers.size()) {
     INT_VECT res(d_atomMembers[idx].size());
@@ -70,7 +70,7 @@ RingInfo::INT_VECT RingInfo::atomMembers(unsigned int idx) const {
 }
 bool RingInfo::areAtomsInSameRingOfSize(unsigned int idx1, unsigned int idx2,
                                         unsigned int size) const {
-  PRECONDITION(df_init, "RingInfo not initialized");
+  PRECONDITION(df_fullyPopulated, "RingInfo not fully populated");
 
   if (idx1 >= d_atomMembers.size() || idx2 >= d_atomMembers.size()) {
     return false;
@@ -92,7 +92,7 @@ bool RingInfo::areAtomsInSameRingOfSize(unsigned int idx1, unsigned int idx2,
   return false;
 }
 RingInfo::INT_VECT RingInfo::bondRingSizes(unsigned int idx) const {
-  PRECONDITION(df_init, "RingInfo not initialized");
+  PRECONDITION(df_fullyPopulated, "RingInfo not fully populated");
 
   if (idx < d_bondMembers.size()) {
     INT_VECT res(d_bondMembers[idx].size());
@@ -149,7 +149,7 @@ RingInfo::INT_VECT RingInfo::bondMembers(unsigned int idx) const {
 }
 bool RingInfo::areBondsInSameRingOfSize(unsigned int idx1, unsigned int idx2,
                                         unsigned int size) const {
-  PRECONDITION(df_init, "RingInfo not initialized");
+  PRECONDITION(df_fullyPopulated, "RingInfo not fully populated");
 
   if (idx1 >= d_bondMembers.size() || idx2 >= d_bondMembers.size()) {
     return false;
