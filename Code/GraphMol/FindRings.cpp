@@ -858,13 +858,17 @@ int findSSSR(const ROMol &mol, VECT_INT_VECT *res) {
 
 int findSSSR(const ROMol &mol, VECT_INT_VECT &res) {
   res.resize(0);
-  // check if SSSR's are already on the molecule
-  if (mol.getRingInfo()->isInitialized()) {
-    res = mol.getRingInfo()->atomRings();
+  // Check if the molecule already has a complete SSSR
+  RingInfo* ri = mol.getRingInfo();
+  if (ri->isFullyPopulated()) {
+    res = ri->atomRings();
     return rdcast<int>(res.size());
   } else {
-    mol.getRingInfo()->initialize();
+    ri->reset();
+    ri->initialize();
   }
+
+  ri->setFullyPopulatedFlag(true);
 
   RINGINVAR_SET invars;
 
@@ -1083,10 +1087,10 @@ int findSSSR(const ROMol &mol, VECT_INT_VECT &res) {
             << "WARNING: could not find number of expected rings. Switching to "
                "an approximate ring finding algorithm."
             << std::endl;
-        mol.getRingInfo()->reset();
+        ri->reset();
         fastFindRings(mol);
         res.clear();
-        res = mol.getRingInfo()->atomRings();
+        res = ri->atomRings();
         return rdcast<int>(res.size());
       }
     }
@@ -1126,27 +1130,27 @@ int symmetrizeSSSR(ROMol &mol) {
   return symmetrizeSSSR(mol, tmp);
 };
 
-int symmetrizeSSSR(ROMol &mol, VECT_INT_VECT &res) {
-  res.clear();
-  VECT_INT_VECT sssrs;
-
-  // FIX: need to set flag here the symmetrization has been done in order to
-  // avoid repeating this work
-  if (!mol.getRingInfo()->isInitialized()) {
-    findSSSR(mol, sssrs);
+int symmetrizeSSSR(ROMol &mol, VECT_INT_VECT &sssrs) {
+  RingInfo* ri = mol.getRingInfo();
+  // Check if the molecule already has a complete SSSR
+  if (ri->isFullyPopulated()) {
+    sssrs = ri->atomRings();
   } else {
-    sssrs = mol.getRingInfo()->atomRings();
+    findSSSR(mol, sssrs);
   }
 
-  res.reserve(sssrs.size());
-  for (const auto &r : sssrs) {
-    res.emplace_back(r);
+  // if the SSSR was previously symmetrized we can return immediately
+  if (ri->isSymmetrized()) {
+    return rdcast<int>(sssrs.size());
   }
+
+  // flag the SSSR as symmetrized to avoid repeating the work in the future
+  ri->setSymmetrizedFlag(true);
 
   // now check if there are any extra rings on the molecule
   if (!mol.hasProp(common_properties::extraRings)) {
     // no extra rings nothing to be done
-    return rdcast<int>(res.size());
+    return rdcast<int>(sssrs.size());
   }
   const VECT_INT_VECT &extras =
       mol.getProp<VECT_INT_VECT>(common_properties::extraRings);
@@ -1206,7 +1210,7 @@ int symmetrizeSSSR(ROMol &mol, VECT_INT_VECT &res) {
       }
 
       if (shareBond && replacesAllUniqueBonds) {
-        res.push_back(extraAtomRing);
+        sssrs.push_back(extraAtomRing);
         FindRings::storeRingInfo(mol, extraAtomRing);
         break;
       }
@@ -1216,7 +1220,8 @@ int symmetrizeSSSR(ROMol &mol, VECT_INT_VECT &res) {
   if (mol.hasProp(common_properties::extraRings)) {
     mol.clearProp(common_properties::extraRings);
   }
-  return rdcast<int>(res.size());
+
+  return rdcast<int>(sssrs.size());
 }
 
 namespace {
@@ -1267,11 +1272,14 @@ void _DFS(const ROMol &mol, const Atom *atom, INT_VECT &atomColors,
 void fastFindRings(const ROMol &mol) {
   // std::cerr<<"ffr"<<std::endl;
   // check if SSSR's are already on the molecule
-  if (mol.getRingInfo()->isInitialized()) {
+  RingInfo* ri = mol.getRingInfo();
+  if (ri->isInitialized()) {
     return;
   } else {
-    mol.getRingInfo()->initialize();
+    ri->initialize();
   }
+  ri->setFullyPopulatedFlag(false);
+  
   VECT_INT_VECT res;
   res.resize(0);
 

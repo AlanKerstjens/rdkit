@@ -225,6 +225,8 @@ void RingInfo::reset() {
     return;
   }
   df_init = false;
+  df_symmetrized = false;
+  df_fullyPopulated = false;
   d_atomMembers.clear();
   d_bondMembers.clear();
   d_atomRings.clear();

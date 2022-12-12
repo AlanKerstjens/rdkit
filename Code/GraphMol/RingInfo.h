@@ -41,8 +41,16 @@ class RDKIT_GRAPHMOL_EXPORT RingInfo {
   RingInfo &operator=(RingInfo &&other) noexcept = default;
   //! checks to see if we've been properly initialized
   bool isInitialized() const { return df_init; }
+  //! checks if the SSSR has been symmetrized
+  bool isSymmetrized() const { return df_symmetrized; }
+  //! checks if the RingInfo is fully populated and supports all function calls
+  bool isFullyPopulated() const { return df_fullyPopulated; }
   //! does initialization
   void initialize();
+  //! flags the SSSR as symmetrized
+  void setSymmetrizedFlag(bool b) { df_symmetrized = b; }
+  //! flags the RingInfo as fully populated
+  void setFullyPopulatedFlag(bool b) { df_fullyPopulated = b; }
 
   //! blows out all current data and de-initializes
   void reset();
@@ -259,7 +267,7 @@ class RDKIT_GRAPHMOL_EXPORT RingInfo {
  private:
   //! pre-allocates some memory to save time later
   void preallocate(unsigned int numAtoms, unsigned int numBonds);
-  bool df_init{false};
+  bool df_init = false, df_symmetrized = false, df_fullyPopulated = false;
   DataType d_atomMembers, d_bondMembers;
   VECT_INT_VECT d_atomRings, d_bondRings;
   VECT_INT_VECT d_atomRingFamilies, d_bondRingFamilies;
