@@ -24,6 +24,9 @@ RingInfo::INT_VECT RingInfo::atomRingSizes(unsigned int idx) const {
   }
   return INT_VECT();
 }
+bool RingInfo::isAtomInRing(unsigned int idx) const {
+  return numAtomRings(idx) > 0;
+}
 bool RingInfo::isAtomInRingOfSize(unsigned int idx, unsigned int size) const {
   PRECONDITION(df_init, "RingInfo not initialized");
 
@@ -99,6 +102,9 @@ RingInfo::INT_VECT RingInfo::bondRingSizes(unsigned int idx) const {
     return res;
   }
   return INT_VECT();
+}
+bool RingInfo::isBondInRing(unsigned int idx) const {
+  return numBondRings(idx) > 0;
 }
 bool RingInfo::isBondInRingOfSize(unsigned int idx, unsigned int size) const {
   PRECONDITION(df_init, "RingInfo not initialized");

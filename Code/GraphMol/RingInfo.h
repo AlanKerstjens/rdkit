@@ -80,6 +80,12 @@ class RDKIT_GRAPHMOL_EXPORT RingInfo {
       - the object must be initialized before calling this
   */
   INT_VECT atomRingSizes(unsigned int idx) const;
+  //! returns whether or not the atom with index \c idx is in a ring.
+  /*!
+    <b>Notes:</b>
+      - the object must be initialized before calling this
+  */
+  bool isAtomInRing(unsigned int idx) const;
   //! returns whether or not the atom with index \c idx is in a \c size - ring.
   /*!
     <b>Notes:</b>
@@ -148,6 +154,12 @@ class RDKIT_GRAPHMOL_EXPORT RingInfo {
       - the object must be initialized before calling this
   */
   INT_VECT bondRingSizes(unsigned int idx) const;
+  //! returns whether or not the bond with index \c idx is in a ring.
+  /*!
+    <b>Notes:</b>
+      - the object must be initialized before calling this
+  */
+  bool isBondInRing(unsigned int idx) const;
   //! returns whether or not the bond with index \c idx is in a \c size - ring.
   /*!
     <b>Notes:</b>
